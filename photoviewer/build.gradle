@@ -33,8 +33,7 @@ dependencies {
 
     compileOnly 'androidx.appcompat:appcompat:1.0.2'
     compileOnly 'androidx.legacy:legacy-support-v4:1.0.0'
-    compileOnly 'androidx.appcompat:appcompat:1.0.2'
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     compileOnly 'androidx.recyclerview:recyclerview:1.0.0'
 }
 repositories {
