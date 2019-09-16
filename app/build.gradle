@@ -40,4 +40,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation project(':photoviewer')
     implementation 'com.google.android.material:material:1.1.0-alpha01'
+
+    // Recyclerview的分割线组件，Github：https://github.com/yqritc/RecyclerView-FlexibleDivider
+    implementation 'com.yqritc:recyclerview-flexibledivider:1.4.0'
 }
