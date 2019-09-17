@@ -2,14 +2,13 @@ package com.wanglu.photoviewerlibrary
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.graphics.Rect
 import android.os.Bundle
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.item_picture.*
 
-class PhotoViewerFragment : BaseLazyFragment() {
+class PhotoViewerFragment : Fragment() {
 
 
     var exitListener: OnExitListener? = null
@@ -22,16 +21,30 @@ class PhotoViewerFragment : BaseLazyFragment() {
     /**
      * 每次选中图片后设置图片信息
      */
-    fun setData(imgSize: IntArray, exitLocation: IntArray, picData: String, inAnim: Boolean) {
-        mImgSize = imgSize
-        mExitLocation = exitLocation
+    fun setData(picData: String, inAnim: Boolean) {
         mInAnim = inAnim
         mPicData = picData
     }
 
+    fun setSourceBounds(bounds: Rect) {
+        mImgSize = intArrayOf(bounds.right - bounds.left, bounds.bottom - bounds.top)
+        mExitLocation = intArrayOf((bounds.left + bounds.right)/2, (bounds.top + bounds.bottom)/2)
+        mIv?.setExitLocation(mExitLocation)
+        mIv?.setImgSize(mImgSize)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
-        return inflater.inflate(R.layout.item_picture, container, false)
+        val view = inflater.inflate(R.layout.item_picture, container, false)
+
+        return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        super.onViewCreated(view, savedInstanceState)
+
+        onLazyLoad()
     }
 
     interface OnExitListener {
@@ -40,7 +53,7 @@ class PhotoViewerFragment : BaseLazyFragment() {
 
 
 
-    override fun onLazyLoad() {
+    fun onLazyLoad() {
 
 
         if (PhotoViewer.mInterface != null) {
@@ -88,19 +101,27 @@ class PhotoViewerFragment : BaseLazyFragment() {
         }
 
         // 添加点击进入时的动画
-        if (mInAnim)
-            mIv.post {
+        if (mInAnim) {
 
-                val scaleOa = ObjectAnimator.ofFloat(mIv, "scale", mImgSize[0].toFloat() / mIv.width, 1f)
-                val xOa = ObjectAnimator.ofFloat(mIv, "translationX", mExitLocation[0].toFloat() - mIv.width / 2, 0f)
-                val yOa = ObjectAnimator.ofFloat(mIv, "translationY", mExitLocation[1].toFloat() - mIv.height / 2, 0f)
+            // 动画必须在draw之前设置，否则会出现屏幕闪烁的问题
+            mIv.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener{
+                override fun onPreDraw(): Boolean {
+                    mIv.viewTreeObserver.removeOnPreDrawListener(this)
 
-                val set = AnimatorSet()
-                set.duration = 250
-                set.playTogether(scaleOa, xOa, yOa)
-                set.start()
-            }
+                    val scaleOa = ObjectAnimator.ofFloat(mIv, "scale", mImgSize[0].toFloat() / mIv.width, 1f)
+                    val xOa = ObjectAnimator.ofFloat(mIv, "translationX", mExitLocation[0].toFloat() - mIv.width / 2, 0f)
+                    val yOa = ObjectAnimator.ofFloat(mIv, "translationY", mExitLocation[1].toFloat() - mIv.height / 2, 0f)
+                    val alphaOa = ObjectAnimator.ofInt(root.background, "alpha", 0, intAlpha)
 
+                    val set = AnimatorSet()
+                    set.duration = 250
+                    set.playTogether(scaleOa, xOa, yOa, alphaOa)
+                    set.start()
+
+                    return true
+                }
+            })
+        }
 
         root.isFocusableInTouchMode = true
         root.requestFocus()

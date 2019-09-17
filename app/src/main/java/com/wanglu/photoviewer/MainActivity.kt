@@ -44,6 +44,9 @@ class MainActivity : AppCompatActivity() {
                 "https://c-ssl.duitang.com/uploads/item/201509/27/20150927141827_JtEYW.jpeg",
                 "https://c-ssl.duitang.com/uploads/item/201510/03/20151003191934_WzHJN.jpeg"
         )
+        for (i in 1..1000) {
+            picData.add("https://c-ssl.duitang.com/uploads/item/201703/21/20170321153911_E8YCa.jpeg")
+        }
         val adapter = object : BaseQuickAdapter<String, BaseViewHolder>(R.layout.item_img, picData) {
             override fun convert(helper: BaseViewHolder?, item: String?) {
                 Glide.with(applicationContext).load(item).into(helper!!.itemView as ImageView)

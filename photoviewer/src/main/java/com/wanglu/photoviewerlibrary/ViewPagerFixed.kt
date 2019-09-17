@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
 
+// 参考https://github.com/chrisbanes/PhotoView#issues-with-viewgroups
 class ViewPagerFixed : androidx.viewpager.widget.ViewPager {
 
     constructor(context: Context) : super(context)
