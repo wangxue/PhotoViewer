@@ -15,6 +15,8 @@
  *******************************************************************************/
 package com.wanglu.photoviewerlibrary.photoview;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
@@ -42,22 +44,18 @@ public class PhotoView extends AppCompatImageView {
     private PhotoViewAttacher attacher;
     private ScaleType pendingScaleType;
     private Scroller mScroller;
-    private OnViewFingerUpL l;
 
     private OnExitListener mExitListener;
 
     private View mRootView;
 
+    private float scale = 1f;
+    private int intAlpha = 255;
 
     private int[] mImgSize; // 图片大小
 
 
     private int[] mExitLocation;
-
-
-    float alpha = 1f;
-    int intAlpha = 255;
-
 
     public void setExitLocation(int[] exitLocation) {
         mExitLocation = exitLocation;
@@ -97,24 +95,12 @@ public class PhotoView extends AppCompatImageView {
         attacher.setOnViewFingerUpListener(new OnViewFingerUpListener() {
             @Override
             public void onViewFingerUp() {
-                alpha = 1f;
-                intAlpha = 255;
                 // 这里恢复位置和透明度
                 if (getRootView().getBackground().getAlpha() == 0 && mExitListener != null) {
                     exit();
                 } else {
-                    ValueAnimator va = ValueAnimator.ofFloat(PhotoView.this.getAlpha(), 1f);
                     ValueAnimator bgVa = ValueAnimator.ofInt(getRootView().getBackground().getAlpha(), 255);
-                    va.setDuration(200);
                     bgVa.setDuration(200);
-                    va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator animation) {
-                            PhotoView.this.setAlpha((Float) animation.getAnimatedValue());
-                        }
-                    });
-                    va.start();
-
                     bgVa.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                         @Override
                         public void onAnimationUpdate(ValueAnimator animation) {
@@ -132,12 +118,31 @@ public class PhotoView extends AppCompatImageView {
 
 
                     postInvalidate();
-                    if (l != null) {
-                        l.up();
-                    }
+
+                    scale = 1f;
+                    intAlpha = 255;
                 }
             }
 
+        });
+
+        attacher.setOnViewDragListener(new OnViewDragListener() {
+
+            @Override
+            public void onDrag(float dx, float dy) {
+                scrollBy((int)-dx, (int)-dy);  // 移动图像
+
+                scale -= dy * 0.001f;
+                if (scale > 1) scale = 1f;
+                else if (scale < 0) scale = 0f;
+                if (scale >= 0.6)
+                    attacher.setScale(scale);   // 更改大小
+
+                intAlpha -= dy * 0.5;
+                if (intAlpha < 0) intAlpha = 0;
+                else if (intAlpha > 255) intAlpha = 255;
+                getRootView().getBackground().setAlpha(intAlpha);  // 更改透明度
+            }
         });
     }
 
@@ -155,6 +160,14 @@ public class PhotoView extends AppCompatImageView {
 
         AnimatorSet set = new AnimatorSet();
         set.setDuration(250);
+        set.addListener(new AnimatorListenerAdapter() {
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+                mExitListener.exit();
+            }
+        });
         set.playTogether(scaleOa, xOa, yOa);
 
 
@@ -170,13 +183,6 @@ public class PhotoView extends AppCompatImageView {
             bgVa.start();
         }
         set.start();
-
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                mExitListener.exit();
-            }
-        }, 270);
     }
 
     public void setRootView(View rootView) {
@@ -363,17 +369,8 @@ public class PhotoView extends AppCompatImageView {
         attacher.setOnViewDragListener(listener);
     }
 
-    public interface OnViewFingerUpL {
-        void up();
-    }
-
     public interface OnExitListener {
         void exit();
-    }
-
-    public void setOnViewFingerUpListener(OnViewFingerUpL listener) {
-        l = listener;
-
     }
 
     public void setScale(float scale) {

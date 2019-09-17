@@ -3,7 +3,7 @@
              android:id="@+id/root"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
-             android:background="#000">
+             android:background="@android:color/black">
 
 
     <com.wanglu.photoviewerlibrary.photoview.PhotoView
@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:background="@color/transparentColor"/>
+        android:background="@android:color/transparent"/>
 
     <ProgressBar
         android:id="@+id/loading"
