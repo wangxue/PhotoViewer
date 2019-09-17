@@ -57,7 +57,7 @@ class PhotoViewerFragment : Fragment() {
 
 
         if (PhotoViewer.mInterface != null) {
-            PhotoViewer.mInterface!!.show(mIv, mPicData)
+            PhotoViewer.mInterface!!.show(mIv, loading, mPicData)
         } else {
             throw RuntimeException("请设置图片加载回调 ShowImageViewInterface")
         }
@@ -71,19 +71,6 @@ class PhotoViewerFragment : Fragment() {
             }
             true
         }
-
-        // 循环查看是否添加上了图片
-        Thread(Runnable {
-            while (true) {
-                if (mIv.drawable != null) {
-                    activity!!.runOnUiThread {
-                        loading.visibility = View.GONE
-                    }
-                    break
-                }
-                Thread.sleep(300)
-            }
-        }).start()
 
         var intAlpha = 255
         root.background.alpha = intAlpha

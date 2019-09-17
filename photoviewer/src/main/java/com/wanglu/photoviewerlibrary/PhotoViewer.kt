@@ -73,7 +73,7 @@ object PhotoViewer {
 
 
     interface ShowImageViewInterface {
-        fun show(iv: ImageView, url: String)
+        fun show(iv: ImageView, loading: View, url: String)
     }
 
     /**
