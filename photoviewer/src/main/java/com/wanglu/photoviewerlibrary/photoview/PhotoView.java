@@ -104,7 +104,7 @@ public class PhotoView extends AppCompatImageView {
                     bgVa.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                         @Override
                         public void onAnimationUpdate(ValueAnimator animation) {
-                            getRootView().getBackground().setAlpha((Integer) animation.getAnimatedValue());
+                            getRootView().getBackground().mutate().setAlpha((Integer) animation.getAnimatedValue());
                         }
                     });
                     bgVa.start();
@@ -141,7 +141,7 @@ public class PhotoView extends AppCompatImageView {
                 intAlpha -= dy * 0.5;
                 if (intAlpha < 0) intAlpha = 0;
                 else if (intAlpha > 255) intAlpha = 255;
-                getRootView().getBackground().setAlpha(intAlpha);  // 更改透明度
+                getRootView().getBackground().mutate().setAlpha(intAlpha);  // 更改透明度
             }
         });
     }
@@ -177,7 +177,7 @@ public class PhotoView extends AppCompatImageView {
             bgVa.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
-                    getRootView().getBackground().setAlpha((Integer) animation.getAnimatedValue());
+                    getRootView().getBackground().mutate().setAlpha((Integer) animation.getAnimatedValue());
                 }
             });
             bgVa.start();
