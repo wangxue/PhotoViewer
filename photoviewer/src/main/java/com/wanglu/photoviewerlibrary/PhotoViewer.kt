@@ -3,6 +3,7 @@ package com.wanglu.photoviewerlibrary
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Build
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -269,11 +270,19 @@ object PhotoViewer {
                 mDotGroup!!.addView(iv)
             }
 
-            // 设置已选中的小圆点位置
+            // layout完成之后设置选中小圆点位置
             mSelectedDot = mFrameLayout.findViewById(R.id.dot_selected)
-            mSelectedDot!!.translationX = (Utils.dp2px(activity, 12) * currentPage
-                    + mDotGroup!!.getChildAt(0).width * currentPage).toFloat()
-
+            mSelectedDot.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    if (Build.VERSION.SDK_INT >= 16) {
+                        mSelectedDot.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    } else {
+                        mSelectedDot.viewTreeObserver.removeGlobalOnLayoutListener(this)
+                    }
+                    val dx = Utils.dp2px(activity, 12) + mDotGroup!!.getChildAt(0).width
+                    mSelectedDot!!.translationX = (dx * currentPage).toFloat()
+                }
+            })
         } else {
             LayoutInflater.from(activity).inflate(R.layout.layout_indicator_text, mFrameLayout)
             tv = mFrameLayout.findViewById(R.id.text)
